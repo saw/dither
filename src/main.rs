@@ -57,14 +57,26 @@ fn main() {
         let mut next_pixel;
         let mut adjval:u8;
         let mut adjpix:Rgba<u8>;
-        
+        let mut index_x:i32 = 0;
+        let mut index_y:i32 = 0;
         if (pixel.0 < dims.0-1) {
-            next_pixel = img.get_pixel(pixel.0 +1, pixel.1);
+            index_x = pixel.0 as i32 + 1;
+            index_y = pixel.1 as i32;
+            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * 7.0/16.0;
             adjval = getAdjustedPixel(*next_pixel, quant_error as i8); // cast to u8 same as floor and faster
-            // next_pixel
             let fpix = Rgba([adjval, adjval, adjval, 255]);
-            img2.put_pixel(pixel.0+1, pixel.1, fpix);
+            img2.put_pixel(index_x as u32, index_y as u32, fpix);
+        }
+
+        if pixel.0 > 0  && pixel.1 < dims.1 - 1 {
+            index_x = pixel.0 as i32 - 1;
+            index_y = pixel.1 as i32 + 1;
+            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            let quant_error_transformed:f32 = quant_error as f32 * 7.0/16.0;
+            adjval = getAdjustedPixel(*next_pixel, quant_error as i8); // cast to u8 same as floor and faster
+            let fpix = Rgba([adjval, adjval, adjval, 255]);
+            img2.put_pixel(index_x as u32, index_y as u32, fpix);
         }
 
 
