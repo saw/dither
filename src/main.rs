@@ -214,10 +214,22 @@ fn main() {
             .help("Output path")
             .takes_value(true)
             .required(true))
-            .get_matches();
+        .arg(Arg::with_name("algo")
+            .short("a")
+            .long("algorithm")
+            .help("Algorithm, floyd or atkinson, defaults to atkinson")
+            .takes_value(true))
+        .get_matches();
+
     // let path = &args[1];
     let filename = matches.value_of("INPUT").unwrap();
     let outpath = matches.value_of("o").unwrap();
+    let algo = matches.value_of("algo").unwrap_or("atkinson");
     let read = image::open(filename).expect("Read failure");
-    atikinson(read, outpath);
+    if algo == "atkinson" {
+        atikinson(read, outpath);
+    } else {
+        floyd_steinberg(read, outpath);
+    }
+    
 }

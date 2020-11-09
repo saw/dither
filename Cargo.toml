@@ -1,5 +1,5 @@
 [package]
-name = "hello-rust"
+name = "dither"
 version = "0.1.0"
 authors = ["Stephen Woods <stephen.woods@salesforce.com>"]
 edition = "2018"
