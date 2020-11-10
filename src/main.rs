@@ -39,7 +39,7 @@ fn get_adjusted_pixel(old_pixel:image::Rgba<u8>, adjustment:i8) -> u8 {
 fn atikinson(input: DynamicImage, filename:&str)  {
     let dims = input.dimensions();
     let img = input.into_rgba();
-    let mut img2: RgbaImage = ImageBuffer::new(dims.0, dims.1);
+    let mut img2: RgbaImage = img.clone();
     img2.put_pixel(0,0, *img.get_pixel(0,0));
     for pixel in img.enumerate_pixels() {
         // println!("Pix: {:?}", pixel);
@@ -60,20 +60,10 @@ fn atikinson(input: DynamicImage, filename:&str)  {
         let mut index_x:i32;
         let mut index_y:i32;
 
-        /*
-
-                Atikinson
-        pixel[x + 1][y    ] := pixel[x + 1][y    ] + quant_error × 1 / 8
-        pixel[x + 2][y    ] := pixel[x + 1][y    ] + quant_error × 1 / 8
-        pixel[x - 1][y + 1] := pixel[x - 1][y + 1] + quant_error × 1 / 8
-        pixel[x    ][y + 1] := pixel[x    ][y + 1] + quant_error × 1 / 8
-        pixel[x + 1][y + 1] := pixel[x + 1][y + 1] + quant_error × 1 / 8
-        pixel[x][y +1] := pixel[x + 2][y    ] + quant_error × 1 / 8 */
-
         if pixel.0 < dims.0-1 {
             index_x = pixel.0 as i32 + 1;
             index_y = pixel.1 as i32;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * MULTIPLIER;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -83,7 +73,7 @@ fn atikinson(input: DynamicImage, filename:&str)  {
         if pixel.0 < dims.0-2 {
             index_x = pixel.0 as i32 + 2;
             index_y = pixel.1 as i32;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * MULTIPLIER;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -93,7 +83,7 @@ fn atikinson(input: DynamicImage, filename:&str)  {
         if pixel.0 > 0  && pixel.1 < dims.1 - 1 {
             index_x = pixel.0 as i32 - 1;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * MULTIPLIER;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -103,7 +93,7 @@ fn atikinson(input: DynamicImage, filename:&str)  {
         if pixel.1 < dims.1 -1 {
             index_x = pixel.0 as i32;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * MULTIPLIER;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -113,7 +103,7 @@ fn atikinson(input: DynamicImage, filename:&str)  {
         if pixel.0 < dims.0-1 && pixel.1 < dims.1 -1 {
             index_x = pixel.0 as i32 + 1;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * MULTIPLIER;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -123,7 +113,7 @@ fn atikinson(input: DynamicImage, filename:&str)  {
         if pixel.0 < dims.0-2 && pixel.1 < dims.1 -1 {
             index_x = pixel.0 as i32 + 2;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * MULTIPLIER;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -137,7 +127,8 @@ fn atikinson(input: DynamicImage, filename:&str)  {
 fn floyd_steinberg(input: DynamicImage, filename:&str)  {
     let dims = input.dimensions();
     let img = input.into_rgba();
-    let mut img2: RgbaImage = ImageBuffer::new(dims.0, dims.1);
+    let mut img2: RgbaImage = img.clone();
+    
     img2.put_pixel(0,0, *img.get_pixel(0,0));
     for pixel in img.enumerate_pixels() {
         // println!("Pix: {:?}", pixel);
@@ -160,7 +151,7 @@ fn floyd_steinberg(input: DynamicImage, filename:&str)  {
         if pixel.0 < dims.0-1 {
             index_x = pixel.0 as i32 + 1;
             index_y = pixel.1 as i32;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * 7.0/16.0;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -170,7 +161,7 @@ fn floyd_steinberg(input: DynamicImage, filename:&str)  {
         if pixel.0 > 0  && pixel.1 < dims.1 - 1 {
             index_x = pixel.0 as i32 - 1;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * 3.0/16.0;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -180,7 +171,7 @@ fn floyd_steinberg(input: DynamicImage, filename:&str)  {
         if pixel.1 < dims.1 -1 {
             index_x = pixel.0 as i32;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * 5.0/16.0;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
@@ -190,7 +181,7 @@ fn floyd_steinberg(input: DynamicImage, filename:&str)  {
         if pixel.0 < dims.0-1 && pixel.1 < dims.1 -1 {
             index_x = pixel.0 as i32 + 1;
             index_y = pixel.1 as i32 + 1;
-            next_pixel = img.get_pixel(index_x as u32, index_y as u32);
+            next_pixel = img2.get_pixel(index_x as u32, index_y as u32);
             let quant_error_transformed:f32 = quant_error as f32 * 1.0/16.0;
             adjval = get_adjusted_pixel(*next_pixel, quant_error_transformed as i8); // cast to u8 same as floor and faster
             let fpix = Rgba([adjval, adjval, adjval, 255]);
