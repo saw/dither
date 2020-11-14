@@ -1,7 +1,6 @@
 extern crate image;
 extern crate clap;
 use clap::{Arg, App, SubCommand};
-
 use image::{GenericImageView, RgbaImage, ImageBuffer, Rgba, DynamicImage};
 use std::env;
 
